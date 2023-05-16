@@ -39,6 +39,7 @@ public class TradingInternalApiController extends AbstractApiController {
         message.asset = transferRequest.asset;
         message.amount = transferRequest.amount;
         message.sufficient = transferRequest.fromUserId.longValue() != UserType.DEBT.getInternalUserId();
+        // TODO:不亲自转，发消息通知别的模块转
         this.sendEventService.sendMessage(message);
         logger.info("transfer event sent: {}", message);
         return Map.of("result", Boolean.TRUE);

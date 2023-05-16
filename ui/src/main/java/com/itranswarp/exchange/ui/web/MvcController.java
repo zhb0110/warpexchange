@@ -58,6 +58,16 @@ public class MvcController extends LoggerSupport {
                 String email = "user" + i + "@example.com";
                 String name = "User-" + i;
                 String password = "password" + i;
+
+//                UserProfileEntity userProfileEntity = userService.fetchUserProfileByEmail(email);
+//                if (userProfileEntity == null) {
+//                    logger.info("auto create user {} for local dev env...", email);
+//                    doSignup(email, name, password);
+//                }else {
+//                    // TODO:理论上老用户有自己的资产，但是第二次启动就没了，这里临时重新给他添加资产
+//                    deposit(userProfileEntity);
+//                }
+
                 if (userService.fetchUserProfileByEmail(email) == null) {
                     logger.info("auto create user {} for local dev env...", email);
                     doSignup(email, name, password);
@@ -132,11 +142,13 @@ public class MvcController extends LoggerSupport {
         UserProfileEntity profile = userService.signup(email, name, password);
         // 本地开发环境下自动给用户增加资产:
         if (isLocalDevEnv()) {
-            logger.warn("auto deposit assets for user {} in local dev env...", profile.email);
-            Random random = new Random(profile.userId);
-            deposit(profile.userId, AssetEnum.BTC, new BigDecimal(random.nextInt(5_00, 10_00)).movePointLeft(2));
-            deposit(profile.userId, AssetEnum.USD,
-                    new BigDecimal(random.nextInt(100000_00, 400000_00)).movePointLeft(2));
+//            logger.warn("auto deposit assets for user {} in local dev env...", profile.email);
+//            Random random = new Random(profile.userId);
+//            deposit(profile.userId, AssetEnum.BTC, new BigDecimal(random.nextInt(5_00, 10_00)).movePointLeft(2));
+//            deposit(profile.userId, AssetEnum.USD,
+//                    new BigDecimal(random.nextInt(100000_00, 400000_00)).movePointLeft(2));
+            // TODO:改造
+            deposit(profile);
         }
         logger.info("user signed up: {}", profile);
         return profile;
@@ -155,7 +167,18 @@ public class MvcController extends LoggerSupport {
         req.asset = asset;
         req.fromUserId = UserType.DEBT.getInternalUserId();
         req.toUserId = userId;
+        // 访问接口：资产转移
         restClient.post(Map.class, "/internal/transfer", null, req);
+    }
+
+    // TODO:增加的方法，纯添加资产
+    private void deposit(UserProfileEntity profile) {
+        // 本地开发环境下自动给用户增加资产:
+        logger.warn("auto deposit assets for user {} in local dev env...", profile.email);
+        Random random = new Random(profile.userId);
+        deposit(profile.userId, AssetEnum.BTC, new BigDecimal(random.nextInt(5_00, 10_00)).movePointLeft(2));
+        deposit(profile.userId, AssetEnum.USD,
+                new BigDecimal(random.nextInt(100000_00, 400000_00)).movePointLeft(2));
     }
 
     @GetMapping("/signin")

@@ -114,6 +114,7 @@ public class TradingEngineService extends LoggerSupport {
 
     @PostConstruct
     public void init() {
+        // TODO:初始化，并赋值，比如说：资产asset
         this.shaUpdateOrderBookLua = this.redisService.loadScriptFromClassPath("/redis/update-orderbook.lua");
         this.consumer = this.messagingFactory.createBatchMessageListener(Messaging.Topic.TRADE, IpUtil.getHostId(),
                 this::processMessages);
@@ -291,6 +292,7 @@ public class TradingEngineService extends LoggerSupport {
         }
     }
 
+    // TODO:当注册后，有多少用户执行多少次，这才获得了资产asset
     public void processMessages(List<AbstractEvent> messages) {
         this.orderBookChanged = false;
         for (AbstractEvent message : messages) {
